@@ -75,7 +75,7 @@ $ git clone https://github.com/iknowjason/AwesomeCloudsecTool.git
 $ cd AwesomeCloudsecTool
 ~/AwesomeCloudsecTool$ go get -u github.com/miekg/dns
 ~/AwesomeCloudsecTool$ go get -u golang.org/x/net/html
-~/AwesomeCloudsecTool$ env go env -w GO111MODULE=off
+~/AwesomeCloudsecTool$ go env -w GO111MODULE=off
 ~/AwesomeCloudsecTool$ go build edge.go
 ~/AwesomeCloudsecTool$ ./edge (Verify it)
 ```
