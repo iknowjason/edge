@@ -4,6 +4,7 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 ![](edge-usage.png)
 
 # Demo Video
+Coming soon.
 
 
 # Options
@@ -79,10 +80,6 @@ $ cd AwesomeCloudsecTool
 ~/AwesomeCloudsecTool$ go build edge.go
 ~/AwesomeCloudsecTool$ ./edge (Verify it)
 ```
-
-
-
-
 
 
 
