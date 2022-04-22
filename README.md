@@ -8,8 +8,8 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 
 # Options
 ```
-./edge -help
-Usage of ./edge:
+$ edge -help
+Usage of edge:
   -crt
     	Certificate transparency lookup mode
   -csv string
