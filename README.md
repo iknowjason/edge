@@ -6,7 +6,39 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 # Demo Video
 
 
-# Detailed Usage / Examples
+# Options
+```
+./edge -help
+Usage of ./edge:
+  -crt
+    	Certificate transparency lookup mode
+  -csv string
+    	Output results to CSV file
+  -dns
+    	A and CNAME record lookup mode
+  -domain string
+    	The domain to perform guessing against.
+  -ip string
+    	The text file to use with IP addresses
+  -nmap string
+    	Nmap scan xml file to use.
+  -output
+    	Enable output to CSV
+  -prefix
+    	IP Prefix CSP lookup mode
+  -ptr
+    	PTR lookup mode
+  -resolver string
+    	The DNS server to use. (default "8.8.8.8:53")
+  -verbose
+    	Enable verbose output
+  -wordlist string
+    	The wordlist to use for guessing.
+  -workers int
+    	The amount of workers to use. (default 10)
+```
+
+# Examples
 ```edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>``` : Perform a wordlist scan of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address across all three cloud service provider's published list of IP prefixes.
 
 ```edge -domain <domain> -dns -wordlist <wordlist.txt>```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.
