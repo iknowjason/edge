@@ -9,6 +9,14 @@ Edge is a recon tool focused on exploring cloud service providers.  Can be used 
 # Detailed Usage / Examples
 ```edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>``` : Do a wordlist scan of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address.
 
+```edge -domain <domain> -dns -wordlist <wordlist.txt>```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.
+
+```edge -domain <domain> -crt```:  Do a Certificate Transparency log lookup using https://crt.sh
+
+```edge -domain <domain> -dns -crt```:  Do a Certificate transparency lookup.  For each host discovered via Cert Transparency, do a full DNS A or CNAME lookup.
+
+
+
 
 # Building
 
