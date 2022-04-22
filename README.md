@@ -1,5 +1,5 @@
-# edge
-Edge is a recon tool focused on exploring cloud service providers.  Can be used for pentesting, bug bounty, red teaming, or R&D of cloud providers.  Edge automatically loads CSP IP prefixes (AWS, Azure, GCP) and can do prefix lookups based on IP addressing.  
+# Cloud edge tool
+Edge is a recon tool focused on exploring cloud service providers.  Can be used for pentesting, bug bounty, red teaming, or R&D of cloud providers.  Edge automatically loads CSP IP prefixes (AWS, Azure, GCP) and can do prefix lookups based on IP addressing.  In a black box network pentest, this is a great tool to quickly discover which cloud CSP the customer is hosted with, or just double-verifying the scope for rules of engagment.  Each of the three Cloud Service Proviers (Amazon, Azure, GCP) publish a list of all of their IP prefixes and/or netblocks.  In some cases this also includes the region/data center and service name.  This can be useful for recon and this tool can quickly parse and do a lookup based on IP prefix.
 
 ![](edge-usage.png)
 
@@ -11,11 +11,27 @@ Edge is a recon tool focused on exploring cloud service providers.  Can be used 
 
 ```edge -domain <domain> -dns -wordlist <wordlist.txt>```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.
 
+```edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.  For every IP address enumerated, perform a prefix lookup.
+
 ```edge -domain <domain> -crt```:  Do a Certificate Transparency log lookup using https://crt.sh
 
 ```edge -domain <domain> -dns -crt```:  Do a Certificate transparency lookup.  For each host discovered via Cert Transparency, do a full DNS A or CNAME lookup.
 
+```edge -prefix -ip <ip-hosts.txt>```:  Do a lookup of the IP address for the cloud service provider IP prefix.  Takes a list of IP addresses in ip-hosts.txt and looks through it doing a lookup.  One IP address per line.
 
+```edge -ptr -ip <ip-hosts.txt>```:  Does a DNS PTR lookup based on the IP address on each line of ip-hosts.txt.
+
+```edge -prefix -nmap <results.xml>```:  Parses an nmap scan XML file, identifying all "Up" hosts.  For every "Up" host in nmap XML scan results, do an IP prefix lookup for the cloud service provider.
+
+```edge -ptr -nmap <results.txt>```:  Parses an nmap scan XML file, and does a PTR lookup of every "Up" host.
+
+```edge -domain <domain> -dns -wordlist <wordlist.txt> -workers 100```:  Uses a DNS concurrency scan of 100 workers.  This increases the scan speed.  Default workers: 10.
+
+```edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53```:  Specify a DNS resolver of 8.8.4.4 on port 53.  Default is 8.8.8.8.
+
+```edge -crt -domain <domain> -output -csv <output.csv>```:  Output results to a CSV file, output.csv.
+
+```edge -crt -domain <domain> -verbose```:  Enable verbose output.
 
 
 # Building
