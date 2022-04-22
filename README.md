@@ -88,6 +88,6 @@ $ cd AwesomeCloudsecTool
 
 @0xdabbad00 for general AWS tools and inspiration
 
-This tool was inspired from many other tools and authors, including dnsrecon and gobuster.  Yeah I know.  Not a lot new here - just another subdomain enumeration tool.  Just wanted to learn Golang.
+This tool was inspired from many other tools and authors, including dnsrecon and gobuster.  Yeah I know.  Not a lot new here - just another subdomain enumeration tool.  I just really wanted to learn Golang :-)
 
 "Black Hat Go" book
