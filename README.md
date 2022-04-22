@@ -3,3 +3,16 @@ Edge is a recon tool focused on exploring cloud service providers.  Can be used 
 
 ![](edge-usage.png)
 
+# demo video
+
+
+# Detailed Usage / Examples
+
+
+# Building
+
+# Credits
+@mosesrenegade for tool inspiration
+@0xdabbad00 for general AWS tool ideas
+
+This tool was inspired from many other tools and authors, including dnsrecon and gobuster.  Not a lot new here other than combining IP prefix CSP lookups.  Just wanted to learn Golang.
