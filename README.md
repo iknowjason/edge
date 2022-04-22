@@ -3,7 +3,7 @@ Edge is a recon tool focused on exploring cloud service providers.  Can be used 
 
 ![](edge-usage.png)
 
-# demo video
+# Demo Video
 
 
 # Detailed Usage / Examples
