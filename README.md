@@ -40,31 +40,62 @@ Usage of edge:
 ```
 
 # Examples
-```edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>``` : Perform a wordlist scan of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address across all three cloud service provider's published list of IP prefixes.
+* **```$ edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>```**
 
-```edge -domain <domain> -dns -wordlist <wordlist.txt>```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.
+**Description:**  Perform a wordlist scan of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address across all three cloud service provider's published list of IP prefixes.
 
-```edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix```:  Perform just a wordlist scan of all A and CNAME records based on wordlist.  For every IP address enumerated, perform a prefix lookup.
+* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt>```**  
 
-```edge -domain <domain> -crt```:  Do a Certificate Transparency log lookup using https://crt.sh
+**Description:** Perform just a wordlist scan of all A and CNAME records based on wordlist.
 
-```edge -domain <domain> -dns -crt```:  Do a Certificate transparency lookup.  For each host discovered via Cert Transparency, do a full DNS A or CNAME lookup.
+* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix```**  
 
-```edge -prefix -ip <ip-hosts.txt>```:  Do a lookup of the IP address for the cloud service provider IP prefix.  Takes a list of IP addresses in ip-hosts.txt and looks through it doing a lookup.  One IP address per line.
+**Description:** Perform just a wordlist scan of all A and CNAME records based on wordlist.  For every IP address enumerated, perform a prefix lookup.
 
-```edge -ptr -ip <ip-hosts.txt>```:  Does a DNS PTR lookup based on the IP address on each line of ip-hosts.txt.
+* **```$ edge -domain <domain> -crt```**  
 
-```edge -prefix -nmap <results.xml>```:  Parses an nmap scan XML file, identifying all "Up" hosts.  For every "Up" host in nmap XML scan results, do an IP prefix lookup for the cloud service provider.
+**Description:** Do a Certificate Transparency log lookup using https://crt.sh
 
-```edge -ptr -nmap <results.txt>```:  Parses an nmap scan XML file, and does a PTR lookup of every "Up" host.
 
-```edge -domain <domain> -dns -wordlist <wordlist.txt> -workers 100```:  Uses a DNS concurrency scan of 100 workers.  This increases the scan speed.  Default workers: 10.
+* **```$ edge -domain <domain> -dns -crt```**
 
-```edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53```:  Specify a DNS resolver of 8.8.4.4 on port 53.  Default is 8.8.8.8.
+**Description:** Perform a Certificate transparency lookup.  For each host discovered via Cert Transparency, do a full DNS A or CNAME lookup.
 
-```edge -crt -domain <domain> -output -csv <output.csv>```:  Output results to a CSV file, output.csv.
+* **```$ edge -prefix -ip <ip-hosts.txt>```**
 
-```edge -crt -domain <domain> -verbose```:  Enable verbose output.
+**Description:** Perform a lookup of the IP address for the cloud service provider IP prefix.  Takes a list of IP addresses in ip-hosts.txt and looks through it doing a lookup.  One IP address per line.
+
+* **```$ edge -ptr -ip <ip-hosts.txt>```**
+
+**Description:** Does a DNS PTR lookup based on the IP address on each line of ip-hosts.txt.
+
+* **```$ edge -prefix -nmap <results.xml>```**
+
+**Description:** Parses an nmap scan XML file, identifying all "Up" hosts.  For every "Up" host in nmap XML scan results, do an IP prefix lookup for the cloud service provider.
+
+
+* **```$ edge -ptr -nmap <results.txt>```**
+
+**Description:** Parses an nmap scan XML file, and does a PTR lookup of every "Up" host.
+
+
+* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -workers 100```**
+
+**Description:** Uses a DNS concurrency scan of 100 workers.  This increases the scan speed.  Default workers: 10.
+
+* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53```**
+
+**Description:** Specify a DNS resolver of 8.8.4.4 on port 53.  Default is 8.8.8.8.
+
+
+* **```$ edge -crt -domain <domain> -output -csv <output.csv>```**
+
+**Description:** Output results to a CSV file, output.csv.
+
+
+* **```$ edge -crt -domain <domain> -verbose```** 
+
+**Description:** Enable verbose output.
 
 
 # Building
