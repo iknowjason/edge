@@ -6,6 +6,9 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 # Demo Video
 Coming soon.
 
+# Input and Output
+Coming soon.
+
 
 # Options
 ```
@@ -98,10 +101,12 @@ Usage of edge:
 **Description:** Enable verbose output.
 
 
-# Building
+# Installing
 
+## Binaries
 You can grab the pre-compiled binaries or build it.
 
+## Building
 Tested with go1.18
 
 ```
