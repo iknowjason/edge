@@ -69,16 +69,18 @@ Usage of edge:
 
 # Building
 
+You can grab the pre-compiled binaries or build it.
+
 Tested with go1.18
 
 ```
-$ git clone https://github.com/iknowjason/AwesomeCloudsecTool.git
-$ cd AwesomeCloudsecTool
-~/AwesomeCloudsecTool$ go get -u github.com/miekg/dns
-~/AwesomeCloudsecTool$ go get -u golang.org/x/net/html
-~/AwesomeCloudsecTool$ go env -w GO111MODULE=off
-~/AwesomeCloudsecTool$ go build edge.go
-~/AwesomeCloudsecTool$ ./edge (Verify it)
+$ git clone https://github.com/iknowjason/edge.git
+$ cd edge
+~/edge$ go get -u github.com/miekg/dns
+~/edge$ go get -u golang.org/x/net/html
+~/edge$ go env -w GO111MODULE=off
+~/edge$ go build edge.go
+~/edge$ ./edge (Verify it)
 ```
 
 
