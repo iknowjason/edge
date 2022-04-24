@@ -104,7 +104,7 @@ Usage of edge:
 # Installing
 
 ## Binaries
-You can grab the pre-compiled binaries or build it.
+You can grab the pre-compiled binaries or build it.  Make sure you also get the cloud provider IP prefix JSON files.
 
 ## Building
 Tested with go1.18
