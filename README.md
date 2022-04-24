@@ -7,7 +7,45 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 Coming soon.
 
 # Input and Output
-Coming soon.
+Here are a few notes on how the tool works for inputs and output.  
+
+When the tool runs, it looks for the three cloud provider IP address ranges JSON files in the working directory.  These files are included in this repo.
+* ip-ranges.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
+* azure.json (Azure) --> https://www.microsoft.com/en-us/download/details.aspx?id=56519
+* goog.json (GCP) --> https://www.gstatic.com/ipranges/goog.json
+
+If found in working directory, all IP prefixes are loaded into memory.  To update the files, you can use the included tool in this repo compiled from ```http.go``` to download Google and AWS JSON.  Or you can download the latest versions manually.  For the Azure JSON file, it needs to be manually downloaded and renamed in the current working directory to ```azure.json```.
+
+The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag.
+
+When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
+
+With ```-dns``` or ```crt``` mode, the output is is sent by default to the console as comma delimited results.  This makes it easy to use other tools to parse these results.
+```
+FQDN,IP,SOURCE,CNAME,DESCRIPTION
+```
+
+* **FQDN:**  This is the DNS lookup as a FQDN.
+* **IP:**  This is the IP address returned from an A record if found.
+* **SOURCE:**  This is the source of the lookup.  Either A, CNAME, or Certificate.
+* **CNAME:** This returns the CNAME or ALIAS if the request is a CNAME.
+* **DESCRIPTION:** This returns any results from the IP address ranges description if ```-prefix``` is enabled.
+
+With ```-prefix``` mode and either ```-ip``` or ```-nmap```, the output is sent by default to the console as comma delimited results:
+
+```
+IP,DESCRIPTION
+```
+
+The ```IP``` is the IP address and the ```DESCRIPTION``` is the results from the IP address ranges lookup in the cloud provider IP address ranges JSON files, if applicable.
+
+
+With ```-ptr``` mode and either ```ip``` or ```nmap```, the output is sent by default to the console as comma delimited results:
+```
+IP,PTR
+```
+
+The ```IP``` is the IP address and the ```PTR``` is the results from the DNS PTR lookup if found.
 
 
 # Options
