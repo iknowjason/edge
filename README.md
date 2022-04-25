@@ -53,7 +53,7 @@ IP,PTR
 
 The ```IP``` is the IP address and the ```PTR``` is the results from the DNS PTR lookup if found.
 
-## IP Adress files with -IP
+## IP Address files with -IP
 The ```-ip``` flag signals to iterate through a list of IP addresses and can be used in ```prefix``` or ```ptr``` mode.  When you run the tool with ```-ip <hosts.txt>```, it expects each IP address in a separate line, and will iterate through the list doing lookups.  Here is an example of the file contents:
 ```
 user@host:~/demo$ cat ip.txt 
