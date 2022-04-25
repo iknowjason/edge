@@ -11,6 +11,8 @@ Coming soon.
 # Input and Output
 Here are a few notes on how the tool works for inputs and output.  
 
+## JSON files from cloud providers
+
 When the tool runs, it looks for the three cloud provider IP address ranges JSON files in the working directory.  These files are included in this repo.
 * ip-ranges.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
 * azure.json (Azure) --> https://www.microsoft.com/en-us/download/details.aspx?id=56519
@@ -21,6 +23,8 @@ If found in working directory, all IP prefixes are loaded into memory.  To updat
 The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag.
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
+
+## Default CSV Output
 
 With ```-dns``` or ```crt``` mode, the output is is sent by default to the console as comma delimited results.  This makes it easy to use other tools to parse these results.
 ```
@@ -48,6 +52,33 @@ IP,PTR
 ```
 
 The ```IP``` is the IP address and the ```PTR``` is the results from the DNS PTR lookup if found.
+
+## IP Adress files with -IP
+The ```-ip``` flag signals to iterate through a list of IP addresses and can be used in ```prefix``` or ```ptr``` mode.  When you run the tool with ```-ip <hosts.txt>```, it expects each IP address in a separate line, and will iterate through the list doing lookups.  Here is an example of the file contents:
+```
+user@host:~/demo$ cat ip.txt 
+3.133.110.237
+18.117.232.92
+18.221.247.211
+3.137.199.52
+```
+
+## Nmap XML files
+The ```-nmap``` flag signals to parse an nmap XML file.  It will look for any host in the nmap scan file marked as "Up."  For example, ```-nmap scan1.xml``` will tell the tool to parse the scan1.xml file and look for any hosts marked as Up by nmap.  You then run it with either -ptr or -prefix to do a lookup of the IP.
+
+## Subdomain enumeration with -wordlist
+The tool performs classic subdomain enumeration by iterating through a wordlist containing hostnames, one hostname per line.  This is used in ```-dns``` mode with ```-wordlist <hosts.txt>```.  An example of what this looks like for the hosts.txt file:
+
+```
+user@host:~/demo$ more subdomains-5k.txt 
+www
+blog
+news
+blogs
+en
+online
+```
+
 
 
 # Options
