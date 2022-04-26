@@ -610,12 +610,9 @@ func main() {
             //fmt.Println("Platform: " + values.Values[i].Properties.Platform)
             //fmt.Println("SystemService: " + values.Values[i].Properties.Systemservice)
         }
-        /*for i := 0; i < len(values.Values[i].Properties.Addressprefixes); i++ {
-            if isFlagPassed("verbose"){
-                fmt.Println(i, s)
-            }
+        for i := 0; i < len(values.Values[i].Properties.Addressprefixes); i++ {
             azure1++
-        }*/
+        }
         // Loop and print network features
         //fmt.Println("Parsed ",i)
         //for i, s := range values.Values[i].Properties.Networkfeatures {
