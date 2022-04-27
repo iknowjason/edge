@@ -7,9 +7,6 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  Can be
 
 # Demo
 
-[![Cloud edge demo](demo.png)](https://youtu.be/V9s12vAbLCE "Cloud edge demo")
-
-
 
 # Input and Output
 Here are a few notes on how the tool works for inputs and output.  
