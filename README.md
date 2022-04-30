@@ -184,9 +184,6 @@ Tested with go1.18
 ```
 $ git clone https://github.com/iknowjason/edge.git
 $ cd edge
-~/edge$ go get -u github.com/miekg/dns
-~/edge$ go get -u golang.org/x/net/html
-~/edge$ go env -w GO111MODULE=off
 ~/edge$ go build edge.go
 ~/edge$ ./edge (Verify it)
 ```
