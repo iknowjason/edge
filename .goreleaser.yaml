@@ -14,9 +14,6 @@ builds:
       - linux
       - windows
       - darwin
-    goarch:
-      - amd64
-    no_unique_dist_dir: true
 
   - id: http 
     binary: http-{{ .Arch }}
@@ -25,9 +22,6 @@ builds:
       - linux
       - windows
       - darwin
-    goarch:
-      - amd64
-    no_unique_dist_dir: true
 
 archives:
   - replacements:
