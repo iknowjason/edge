@@ -7,7 +7,9 @@ import (
     "log"
     "flag"
     "os"
+    "io"
     "net"
+    "strconv"
     "github.com/miekg/dns"
     "strings"
     "text/tabwriter"
@@ -28,6 +30,43 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
+var edge_version = "0.1.6"
+var (
+    flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
+    flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
+    flCsv         = flag.String("csv", "", "Output results to CSV file")
+    flServerAddr  = flag.String("resolver", "8.8.8.8:53", "The DNS server to use.")
+    flIp          = flag.String("ip", "", "The text file to use with IP addresses")
+    flNmap        = flag.String("nmap", "", "Nmap scan xml file to use.")
+    flWorkerCount = flag.Int("workers", 10, "The amount of workers to use.")
+    flSingle      = flag.String("single", "", "Single IP address to do a prefix lookup")
+    ptrFlag       = false
+    prefixFlag    = false
+    crtFlag       = false
+    dnsFlag       = false
+    verboseFlag   = false
+    outputFlag    = false
+    silentFlag    = false
+    ndFlag        = false
+)
+
+func DownloadFile(filepath string, url string) error {
+
+        resp, err := http.Get(url)
+        if err != nil {
+                return err
+        }
+        defer resp.Body.Close()
+
+        out, err := os.Create(filepath)
+        if err != nil {
+                return err
+        }
+        defer out.Close()
+
+        _, err = io.Copy(out, resp.Body)
+        return err
+}
 
 func fwd_dns_request(query string, serverAddr string) []result {
 
@@ -66,7 +105,6 @@ func fwd_dns_request(query string, serverAddr string) []result {
     if a, ok := in.Answer[0].(*dns.A); ok {
                         
 	// increment records found
-	//records_found++
 
 	ip_addr := a.A.String()
 
@@ -219,7 +257,64 @@ func crt_transparency(domain_string string, serverAddr string) []result {
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
                         for _, r := range result {
+                            // Print summary [INF]
+                            if silentFlag == false {
+                                if r.Source == "A" {
+                                    s := fmt.Sprintf("[INF] Found host via A [%s:%s]", r.Hostname, r.IPAddress)
+                                    fmt.Println(s)
+                                } else if r.Source == "CNAME" {
+                                    s := fmt.Sprintf("[INF] Found host via CNAME [%s:%s]", r.Hostname, r.CNAME_Response)
+                                    fmt.Println(s)
+                                }
+
+                                //parse and print r.Description if not empty 
+                                //which means a cloud provider prefix has been matched
+                                if r.Description == "" {
+                                    //empty string, didn't match to a cloud provider
+                                } else {
+
+                                    desc_elements := strings.Split(r.Description, ";")
+                                    provider := desc_elements[0] 
+                                    provider_elements := strings.Split(provider, ":")
+                                    csp := provider_elements[1]
+                                    prefix := desc_elements[1]
+                                    prefix_elements := strings.Split(prefix, ":")
+                                    csp_prefix := prefix_elements[1]
+
+                                    s := fmt.Sprintf("[INF] Matched Cloud Provider via prefix [%s:%s]", csp, csp_prefix)  
+                                    fmt.Println(s)
+
+                                    // Extract the service if AWS or Azure
+                                    if csp == "AWS" || csp == "Azure" {
+                                        service_string := ""
+                                        region_string := ""
+                                        csp_region := ""
+                                        s := ""
+                                        if csp == "AWS" {
+                                            service_string = desc_elements[3]
+                                            region_string = desc_elements[2]
+                                            regions := strings.Split(region_string, ":")
+                                            csp_region = regions[1]
+                                            services := strings.Split(service_string, ":")
+                                            csp_svc := services[1]
+                                            s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", r.IPAddress, csp_svc, csp_region)
+                                        } else {
+                                            //Parse azure description for SystemService
+                                            service_string = desc_elements[5]
+                                            services := strings.Split(service_string, ":")
+                                            csp_svc := services[1]
+                                            s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", r.IPAddress, csp_svc)
+                                        }
+                                        fmt.Println(s)
+                                    
+                                    } 
+                                }
+
+                            }
+
+                            // print detailed line 
                             fmt.Fprintf(w, "%s,%s,%s,%s,%s\n", r.Hostname, r.IPAddress, r.Source, r.CNAME_Response, r.Description)
+
                             if isFlagPassed("output") {
                                 record := []string{r.Hostname, r.IPAddress, r.Source, r.CNAME_Response, r.Description}
                                 if err := x.Write(record); err != nil {
@@ -297,22 +392,90 @@ func (s *GPrefixes) gcloud_lookup(lookup string) (bool, string) {
 
 func (s *Prefixes) aws_lookup(lookup string) (bool, string) {
 
+   /* In aws prefixes, an IP address can match more than one prefix
+      find all matches prefixes and return the longest prefix match
+      this will show the more detailed service instead of a supernet netblock
+   */
+
     var description = ""
 
+    // structure for holding longest prefix match 
+    type Blob struct {
+        prefix string
+        region string
+        service string
+    }
+
+    // there should not be more than 2 or 3 prefix matches, but specifying 10 just to be safe
+    mprefixes := make([]Blob, 10)
+    mindex := 0
+    atleastonematch := false
     for i := 0; i < len(s.Prefixes); i++ {
         IPAddress := net.ParseIP(lookup)
         _, ipv4Net,_  := net.ParseCIDR(s.Prefixes[i].Ip_prefix)
         mybool := ipv4Net.Contains(IPAddress)
         if mybool == true{
-		description := fmt.Sprintf("Provider:AWS;Prefix:%s;Region:%s;Service:%s",s.Prefixes[i].Ip_prefix,s.Prefixes[i].Region,s.Prefixes[i].Service) 
-
-		if isFlagPassed("verbose") {
-                    fmt.Println("    [+] Found AWS prefix:", s.Prefixes[i].Ip_prefix)
-                    fmt.Println("        [+] Region: ",s.Prefixes[i].Region)
-                    fmt.Println("        [+] Service: ",s.Prefixes[i].Service)
-                }
-                return true, description
+            tmpStruct := Blob{
+                prefix: s.Prefixes[i].Ip_prefix,
+                region: s.Prefixes[i].Region,
+                service: s.Prefixes[i].Service,
+            }
+            
+            // Skip if the service name is 'AMAZON' as this doesn't tell us anything new
+            if s.Prefixes[i].Service != "AMAZON" {
+                mprefixes[mindex] = tmpStruct
+            }
+ 
+            mindex++
+            atleastonematch = true
         }
+    }
+    // Store the longest prefix match into variable
+    longestprefix := ""
+    longestregion := ""
+    longestservice := ""
+
+    if atleastonematch == true {
+
+        // iterate through all of the prefix matches and find longest one
+        for _, mprefixes := range mprefixes {
+            if mprefixes.prefix == "" {
+
+            } else {
+                // if first element in slice, add it
+                if longestprefix == "" {
+                    longestprefix = mprefixes.prefix
+                    longestregion = mprefixes.region
+                    longestservice = mprefixes.service
+                } else {
+                    // get the prefix from prefixes
+                    // split the string based on /
+                    elements1 := strings.Split(mprefixes.prefix, "/")
+                    prefix1 := elements1[1]
+                    intprefix1, _ := strconv.Atoi(prefix1)
+
+                    // extract prefix from longestprefix variable
+                    elements2 := strings.Split(longestprefix, "/")
+                    prefix2 := elements2[1]
+                    intprefix2, _ := strconv.Atoi(prefix2)
+
+                    if intprefix1 > intprefix2 {
+                        longestprefix = mprefixes.prefix
+                        longestregion = mprefixes.region
+                        longestservice = mprefixes.service
+                        
+                    }
+                
+                }
+            }
+        }
+        //fmt.Println("Longest prefix: " + longestprefix)
+        //fmt.Println("Longest region: " + longestregion)
+        //fmt.Println("Longest service: " + longestservice)
+     
+        //description := fmt.Sprintf("Provider:AWS;Prefix:%s;Region:%s;Service:%s",longestprefix,s.Prefixes[i].Region,s.Prefixes[i].Service) 
+        description := fmt.Sprintf("Provider:AWS;Prefix:%s;Region:%s;Service:%s",longestprefix,longestregion,longestservice) 
+        return true, description
     }
     return false, description
 }
@@ -432,22 +595,6 @@ type GPrefix struct {
 
 func main() {
 
-    var (
-        flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
-        flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
-        flCsv         = flag.String("csv", "", "Output results to CSV file")
-        flServerAddr  = flag.String("resolver", "8.8.8.8:53", "The DNS server to use.")
-	flIp          = flag.String("ip", "", "The text file to use with IP addresses")
-	flNmap        = flag.String("nmap", "", "Nmap scan xml file to use.")
-	flWorkerCount = flag.Int("workers", 10, "The amount of workers to use.")
-	ptrFlag       = false
-	prefixFlag    = false
-	crtFlag       = false
-	dnsFlag       = false
-	verboseFlag   = false
-	outputFlag    = false
-    )
-
     start := time.Now()
 
     flag.BoolVar(&ptrFlag, "ptr", false, "PTR lookup mode")
@@ -456,29 +603,32 @@ func main() {
     flag.BoolVar(&dnsFlag, "dns", false, "A and CNAME record lookup mode")
     flag.BoolVar(&verboseFlag, "verbose", false, "Enable verbose output")
     flag.BoolVar(&outputFlag, "output", false, "Enable output to CSV")
+    flag.BoolVar(&silentFlag, "silent", false, "Enable silent mode to suppress [INF]")
+    flag.BoolVar(&ndFlag, "nd", false, "Disable (nd or no download) automated download of provider prefixes")
 
     flag.Parse()
 
-    if *flDomain == "" && *flIp == "" && *flNmap == "" {
-        fmt.Println("-domain or -ip or -nmap mode is required")
-	fmt.Println("Example 1:  -domain acme.com")
-	fmt.Println("Example 2:  -ip hosts.txt -ptr")
-	fmt.Println("Example 3:  -ip hosts.txt -prefix")
+    if *flDomain == "" && *flIp == "" && *flNmap == "" && *flSingle == "" {
+        fmt.Println("[WRN] -domain or -ip or -nmap or -single mode is required")
+	fmt.Println("[WRN] Example 1:  -domain acme.com")
+	fmt.Println("[WRN] Example 2:  -ip hosts.txt -ptr")
+	fmt.Println("[WRN] Example 3:  -ip hosts.txt -prefix")
+	fmt.Println("[WRN] Example 4:  -single <ip_addr>")
         os.Exit(1)
     }
 
     if *flDomain != "" {
         if ! isFlagPassed("crt") && ! isFlagPassed("dns") {
-            fmt.Println("Either -crt or -dns mode must be specified with -domain <domain>")            
-	    fmt.Println("Example 1:  -domain acme.com -dns")
-	    fmt.Println("Example 2:  -domain acme.com -crt")
+            fmt.Println("[WRN] Either -crt or -dns mode must be specified with -domain <domain>")            
+	    fmt.Println("[WRN] Example 1:  -domain acme.com -dns")
+	    fmt.Println("[WRN] Example 2:  -domain acme.com -crt")
             os.Exit(1)
 	}
     }
 
     if *flIp != "" && *flNmap != "" {
-        fmt.Println("[-] Please select either -ip or -nmap when using reverse lookup mode")
-	    fmt.Println("Example 1:  -domain acme.com -dns")
+        fmt.Println("[WRN] Please select either -ip or -nmap when using reverse lookup mode")
+	    fmt.Println("[WRN] Example 1:  -domain acme.com -dns")
             os.Exit(1)
     }
 
@@ -486,30 +636,30 @@ func main() {
     if *flIp == "" {
     } else {
       if isFlagPassed("crt") {
-          fmt.Println("The IP address mode (-ip) can't be enabled with -crt mode")
+          fmt.Println("[WRN] The IP address mode (-ip) can't be enabled with -crt mode")
           os.Exit(1)
       } else if isFlagPassed("dns") {
-          fmt.Println("The IP address mode (-ip) can't be enabled with -dns mode")
+          fmt.Println("[WRN] The IP address mode (-ip) can't be enabled with -dns mode")
           os.Exit(1)
       }
 
       if isFlagPassed("ptr") || isFlagPassed("prefix") {
       } else {
-          fmt.Println("Please select either -ptr or -prefix when specifying an IP address list (-ip)")
+          fmt.Println("[WRN] Please select either -ptr or -prefix when specifying an IP address list (-ip)")
           os.Exit(1)
       }
     }
 
     // For now only allow -prefix or -ptr:  Not both
     if isFlagPassed("ptr") && isFlagPassed("prefix") {
-        fmt.Println("Please specify either PTR mode (-ptr) or Prefix mode (-prefix)")
-        fmt.Println("Both flags are set and this is not allowed")
+        fmt.Println("[WRN] Please specify either PTR mode (-ptr) or Prefix mode (-prefix)")
+        fmt.Println("[WRN] Both flags are set and this is not allowed")
         os.Exit(1)
     }
 
     if isFlagPassed("output") {
         if *flCsv == "" {
-            fmt.Println("Please specify an output csv file name with -csv <filename>")
+            fmt.Println("[WRN] Please specify an output csv file name with -csv <filename>")
             os.Exit(1)
         } else {
 	    //Create CSV
@@ -529,21 +679,64 @@ func main() {
     if isFlagPassed("dns") {
         if *flWordlist == "" {
             if ! isFlagPassed("crt") {
-                fmt.Println("-dns mode requires a wordlist or -crt mode")
+                fmt.Println("[WRN] -dns mode requires a wordlist or -crt mode")
                 os.Exit(1)
 	    }
 	} else {
 		//Check if file exists
 		if _, err := os.Stat(*flWordlist); err == nil{
                 } else {
-			fmt.Println("[-] Error: file specified with -wordlist does not exist: ",*flWordlist)
+			fmt.Println("[WRN] Error: file specified with -wordlist does not exist: ",*flWordlist)
                         os.Exit(1)
 		}
 	}
         if isFlagPassed("ptr"){
-            fmt.Println("Please specify either -dns or -ptr mode - not both")
+            fmt.Println("[WRN] Please specify either -dns or -ptr mode - not both")
             os.Exit(1)
         }
+    }
+
+    if ndFlag == true {
+        fmt.Println("[INF] No download (-nd)  is true ~ skipping https download of provider prefix files and using local")
+    } else {
+
+        // Start of AWS - download fresh prefix list
+        fileUrlAws := "https://ip-ranges.amazonaws.com/ip-ranges.json"
+        fmt.Println("[INF] Starting download of aws prefixes: ", fileUrlAws)
+        fmt.Println("[INF] Skip download with no download flag (-nd)")
+        err2 := DownloadFile("ip-ranges.json", fileUrlAws)
+        if err2 != nil {
+            fmt.Println("[WRN] Error downloading aws IP ranges - using default")
+            panic(err2)
+        } else {
+            fmt.Println("[INF] Downloaded aws prefixes: ", fileUrlAws)
+        }
+
+        // Start of Google Cloud download fresh prefix list
+        fileUrlG := "https://www.gstatic.com/ipranges/goog.json"
+        fmt.Println("[INF] Starting download of gcloud prefixes: ", fileUrlG)
+        err3 := DownloadFile("goog.json", fileUrlG)
+        if err3 != nil {
+            fmt.Println("[WRN] Error downloading gcloud IP ranges - using default")
+            panic(err3)
+        } else {
+            fmt.Println("[INF] Downloaded gcloud: ", fileUrlG)
+        }
+
+        // Start of Azure IP ranges and service tags download
+        // Azure currently has a dynamic URL that changes
+        // hardcode the existing and update as necessary, until a better solution is found
+        fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230130.json"
+        fmt.Println("[INF] Starting download of Azure prefixes: ", fileUrlAzure)
+        err4 := DownloadFile("azure.json", fileUrlAzure)
+
+        if err4 != nil {
+            fmt.Println("[WRN] Error downloading Azure IP ranges - using default")
+            panic(err4)
+        } else {
+            fmt.Println("[INF] Downloaded Azure: ", fileUrlAzure)
+        }
+
     }
 
     jsonFile, err := os.Open("ip-ranges.json")
@@ -551,7 +744,10 @@ func main() {
         fmt.Println(err)
     }
 
-    fmt.Println("[+] Opened AWS ip-ranges.json")
+    if silentFlag == false { 
+        fmt.Println("[INF] Opened AWS ip-ranges.json")
+    }
+
     defer jsonFile.Close()
 
     byteValue, _ := ioutil.ReadAll(jsonFile)
@@ -563,29 +759,24 @@ func main() {
     var aws1 int = 0
     for i := 0; i < len(prefixes.Prefixes); i++ {
         if isFlagPassed("verbose"){
-            //fmt.Println("IP Prefix: " + prefixes.Prefixes[i].Ip_prefix)
-            //fmt.Println("Region: " + prefixes.Prefixes[i].Region)
-            //fmt.Println("Service: " + prefixes.Prefixes[i].Service)
-            //fmt.Println("NBG: " + prefixes.Prefixes[i].NBG)
-            //fmt.Println("Parsed AWS IPv4: ",i)
 	}
         aws1++
     }
-    fmt.Println("[+] Parsed AWS IPv4 prefixes: ",aws1)
+
+    if silentFlag == false { 
+        fmt.Println("[INF] Parsed AWS IPv4 prefixes: ",aws1)
+    }
 
     // Iterate through all of the IPv6 prefixes
     var aws2 int = 0
     for i := 0; i < len(prefixesv6.Prefixesv6); i++ {
         if isFlagPassed("verbose"){
-            //fmt.Println("IP Prefix: " + prefixesv6.Prefixesv6[i].Ipv6_prefix)
-            //fmt.Println("Region: " + prefixesv6.Prefixesv6[i].Region)
-            //fmt.Println("Service: " + prefixesv6.Prefixesv6[i].Service)
-            //fmt.Println("NBG: " + prefixesv6.Prefixesv6[i].NBG)
-            //fmt.Println("Parsed AWS IPv6",i)
 	}
         aws2++
     }
-    fmt.Println("[+] Parsed AWS IPv6 prefixes: ",aws2)
+    if silentFlag == false { 
+        fmt.Println("[INF] Parsed AWS IPv6 prefixes: ",aws2)
+    }
     //Finished parsing aws
 
     // Loading Azure
@@ -594,7 +785,9 @@ func main() {
         fmt.Println(err)
     }
 
-    fmt.Println("[+] Opened azure.json")
+    if silentFlag == false { 
+        fmt.Println("[INF] Opened azure.json")
+    }
     defer jsonFileAzure.Close()
 
     byteValueA, _ := ioutil.ReadAll(jsonFileAzure)
@@ -605,26 +798,21 @@ func main() {
     var azure1 int = 0
     for i := 0; i < len(values.Values); i++ {
         if isFlagPassed("verbose"){
-            //fmt.Println("Name: " + values.Values[i].Name)
-            //fmt.Println("Id: " + values.Values[i].Id)
-            //fmt.Println("Platform: " + values.Values[i].Properties.Platform)
-            //fmt.Println("SystemService: " + values.Values[i].Properties.Systemservice)
         }
         for i := 0; i < len(values.Values[i].Properties.Addressprefixes); i++ {
             azure1++
         }
-        // Loop and print network features
-        //fmt.Println("Parsed ",i)
-        //for i, s := range values.Values[i].Properties.Networkfeatures {
-        //    fmt.Println(i, s)
-        //}
     }
-    fmt.Println("[+] Parsed Azure prefixes: ",azure1)
+    if silentFlag == false { 
+        fmt.Println("[INF] Parsed Azure prefixes: ",azure1)
+    }
     // End of Azure parsing section
 
     defer jsonFileAzure.Close()
 
-    fmt.Println("[+] Opened goog.json")
+    if silentFlag == false { 
+        fmt.Println("[INF] Opened goog.json")
+    }
     byteValueG, err := ioutil.ReadFile("./goog.json")
     if err != nil {
         fmt.Print(err)
@@ -642,24 +830,98 @@ func main() {
         } else {
 
         }
-        //fmt.Println("Parsed ",i)
         gcount1++
     }
-    fmt.Println("[+] Parsed GCloud prefixes: ",gcount1)
+    if silentFlag == false { 
+        fmt.Println("[INF] Parsed GCloud prefixes: ",gcount1)
+    }
     // end of Gcloud
     // End of all three CSP parsing
+
+    // run single IP prefix lookup
+    if *flSingle != "" {
+        if silentFlag == false { 
+            fmt.Println("[INF] Single IP prefix lookup of",*flSingle)
+        }
+        ip_addr := *flSingle
+        var pdesc = ""
+        if retval1, desc := prefixes.aws_lookup(ip_addr); retval1{
+            pdesc = desc
+        } else if retval2, desc2 := values.azure_lookup(ip_addr); retval2 {
+            pdesc = desc2
+        } else if retval3, desc3 := gprefixes.gcloud_lookup(ip_addr); retval3 {
+            pdesc = desc3
+        } else {
+            pdesc = ""
+        }
+
+        w := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
+
+        // Print summary [INF]
+        if silentFlag == false {
+            if pdesc == "" {
+                //empty string, didn't match to a cloud provider
+            } else {
+
+                desc_elements := strings.Split(pdesc, ";")
+                provider := desc_elements[0]
+                provider_elements := strings.Split(provider, ":")
+                csp := provider_elements[1]
+                prefix := desc_elements[1]
+                prefix_elements := strings.Split(prefix, ":")
+                csp_prefix := prefix_elements[1]
+
+                s := fmt.Sprintf("[INF] Matched IP [%s] to Cloud Provider via prefix [%s:%s]", ip_addr, csp, csp_prefix)
+                fmt.Println(s)
+
+                // Extract the service if AWS or Azure
+                if csp == "AWS" || csp == "Azure" {
+                    service_string := ""
+                    region_string := ""
+                    csp_region := ""
+                    s := ""
+                    if csp == "AWS" {
+                        service_string = desc_elements[3]
+                        region_string = desc_elements[2]
+                        regions := strings.Split(region_string, ":")
+                        csp_region = regions[1]
+                        services := strings.Split(service_string, ":")
+                        csp_svc := services[1]
+                        s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", ip_addr, csp_svc, csp_region)
+                    } else {
+                        //Parse azure description for SystemService
+                        service_string = desc_elements[5]
+                        services := strings.Split(service_string, ":")
+                        csp_svc := services[1]
+                        s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", ip_addr, csp_svc)
+                    }
+                    fmt.Println(s)
+                }
+            }
+       
+        } 
+        // Print details
+        fmt.Fprintf(w, "%s,%s\n", ip_addr, pdesc)
+        w.Flush()
+
+        os.Exit(1)
+    }
 
     var results []result
 
     if isFlagPassed("dns") {
-	fmt.Println("[+] Running in DNS mode with workers:", *flWorkerCount)
+        if silentFlag == false { 
+	    fmt.Println("[INF] Running in DNS mode with workers:", *flWorkerCount)
+        }
 
         if *flWordlist == "" {
             //This means crt mode must have been specified 
 
 	} else {
 
-	    fmt.Println("[+] Running in DNS mode with wordlist:", *flWordlist)
+        if silentFlag == false { 
+	    fmt.Println("[INF] Running in DNS mode with wordlist:", *flWordlist)
+        }
 
             fqdns := make(chan string, *flWorkerCount)
             gather := make(chan []result)
@@ -702,7 +964,9 @@ func main() {
     }
 
     if isFlagPassed("crt") {
-        fmt.Println("[+] Running certificate transparency lookup crt.sh")
+        if silentFlag == false { 
+            fmt.Println("[INF] Running certificate transparency lookup crt.sh")
+        }
         // Cert Transparency lookup
         crt_results := crt_transparency(*flDomain, *flServerAddr)
         results = append(results, crt_results...)
@@ -735,7 +999,6 @@ func main() {
 
 		var pdesc = ""
 
-
                 if isFlagPassed("verbose") {
                     fmt.Println("[+] Looking up",ip_addr)
 	        }
@@ -751,6 +1014,50 @@ func main() {
                 }
 
                 w := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
+
+                // Print summary [INF]
+                if silentFlag == false {
+                    if pdesc == "" {
+                        //empty string, didn't match to a cloud provider
+                    } else {
+
+                        desc_elements := strings.Split(pdesc, ";")
+                        provider := desc_elements[0]
+                        provider_elements := strings.Split(provider, ":")
+                        csp := provider_elements[1]
+                        prefix := desc_elements[1]
+                        prefix_elements := strings.Split(prefix, ":")
+                        csp_prefix := prefix_elements[1]
+
+                        s := fmt.Sprintf("[INF] Matched IP [%s] to Cloud Provider via prefix [%s:%s]", ip_addr, csp, csp_prefix)
+                        fmt.Println(s)
+
+                        // Extract the service if AWS or Azure
+                        if csp == "AWS" || csp == "Azure" {
+                            service_string := ""
+                            region_string := ""
+                            csp_region := ""
+                            s := ""
+                            if csp == "AWS" {
+                                service_string = desc_elements[3]
+                                region_string = desc_elements[2]
+                                regions := strings.Split(region_string, ":")
+                                csp_region = regions[1]
+                                services := strings.Split(service_string, ":")
+                                csp_svc := services[1]
+                                s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", ip_addr, csp_svc, csp_region)
+                            } else {
+                                //Parse azure description for SystemService
+                                service_string = desc_elements[5]
+                                services := strings.Split(service_string, ":")
+                                csp_svc := services[1]
+                                s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", ip_addr, csp_svc)
+                            }
+                            fmt.Println(s)
+                        }
+                    }
+                }
+                // Print details 
                 fmt.Fprintf(w, "%s,%s\n", ip_addr, pdesc)
                 w.Flush()
 
@@ -926,7 +1233,17 @@ func main() {
 
     w := tabwriter.NewWriter(os.Stdout, 0, 8, 4, ' ', 0)
     for _, r := range results {
+        // print summary [INF]
+        if silentFlag == false { 
+            if r.Source == "Certificate" {
+                s := fmt.Sprintf("[INF] Found host via crt.sh [%s]", r.Hostname)
+                fmt.Println(s)
+            }
+        }
+
+        // print details 
         fmt.Fprintf(w, "%s,%s,%s,%s,%s\n", r.Hostname, r.IPAddress, r.Source, r.CNAME_Response, r.Description)
+
 	records_found++
     }
     w.Flush()
@@ -944,11 +1261,14 @@ func main() {
         }
     }
 
-    fmt.Println("Timeout errors: ",error_timeout)
+    if silentFlag == false { 
+        fmt.Println("[INF] Timeout errors: ",error_timeout)
+    }
     duration := time.Since(start)
 
-    fmt.Println("Duration:",duration)
-    fmt.Println("DNS Lookups:",dns_lookups)
-    fmt.Println("DNS Records found:",records_found)
-
+    if silentFlag == false { 
+        fmt.Println("[INF] Duration:",duration)
+        fmt.Println("[INF] DNS Lookups:",dns_lookups)
+        fmt.Println("[INF] Certificate Records found:",records_found)
+    }
 }
