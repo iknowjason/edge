@@ -25,7 +25,7 @@ builds:
       - darwin
 
 archives:
-  - id: foo
+  - id: archive 
     name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
