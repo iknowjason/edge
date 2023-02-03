@@ -11,7 +11,7 @@ Here are a few notes on how the tool works for inputs and output.
 
 ## JSON files from cloud providers
 
-When the tool runs, it automatically tries to download and load the three cloud provider IP address ranges JSON files in the working directory.  Here is how it works:
+When the tool runs, it automatically tries to download and load the three cloud provider IP address ranges JSON files to the working directory.  Here is how it works:
 
 By default it will attempt to download the three files from the URLs below unless you disable the automated download with (-nd) flag.
 * ip-ranges.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
@@ -25,6 +25,8 @@ If found in working directory, all IP prefixes are loaded into memory.  To updat
 The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag.
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
+
+One good idea is to initially run the tool to download all three files, making sure they are up-to-date.  Then subsequent runs with ```-nd``` to improve performance and not download every run.
 
 ## Default [INF] Mode enabled
 
