@@ -96,6 +96,8 @@ Usage of edge:
     	The domain to perform guessing against.
   -ip string
     	The text file to use with IP addresses
+  -nd
+    	Disable (nd or no download) automated download of provider prefixes
   -nmap string
     	Nmap scan xml file to use.
   -output
@@ -106,6 +108,10 @@ Usage of edge:
     	PTR lookup mode
   -resolver string
     	The DNS server to use. (default "8.8.8.8:53")
+  -silent
+    	Enable silent mode to suppress [INF]
+  -single string
+    	Single IP address to do a prefix lookup
   -verbose
     	Enable verbose output
   -wordlist string
