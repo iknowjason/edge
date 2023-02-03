@@ -14,16 +14,33 @@ Here are a few notes on how the tool works for inputs and output.
 
 ## JSON files from cloud providers
 
-When the tool runs, it looks for the three cloud provider IP address ranges JSON files in the working directory.  These files are included in this repo.
+When the tool runs, it automatically tries to download and load the three cloud provider IP address ranges JSON files in the working directory.  Here is how it works:
+
+By default it will attempt to download the three files from the URLs below unless you disable the automated download with (-nd) flag.
 * ip-ranges.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
-* azure.json (Azure) --> https://www.microsoft.com/en-us/download/details.aspx?id=56519
+* azure.json (Azure) --> (URL that periodically needs to be updated)
 * goog.json (GCP) --> https://www.gstatic.com/ipranges/goog.json
+
+These three files are already included in this github repository, so downloading them will update any necessary changes.  Once downloaded, you can run the tool with ```-nd``` to avoid superfluous downloads.
 
 If found in working directory, all IP prefixes are loaded into memory.  To update the files, you can use the included tool in this repo compiled from ```http.go``` to download Google and AWS JSON.  Or you can download the latest versions manually.  For the Azure JSON file, it needs to be manually downloaded and renamed in the current working directory to ```azure.json```.
 
 The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag.
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
+
+## Default [INF] Mode enabled
+
+By the default the output displays Informational messages starting with ```[INF]```.  This can be disabled with ```-silent``` flag.  The output will look like this:
+```
+./edge -single 140.179.144.130
+[INF] Single IP prefix lookup of 140.179.144.130
+[INF] Matched IP [140.179.144.130] to Cloud Provider via prefix [AWS:140.179.144.128/25]
+[INF] Matched IP [140.179.144.130] to Cloud Service [API_GATEWAY] and Region [cn-north-1]
+140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
+```
+
+Informational messages will tell you if a record is found through a DNS 'A' record, DNS 'CNAME' record, Certificate (crt.sh), or if a prefix match is found.  Prefix matches will tell you the cloud provider detected with the matching prefix, as well as the cloud service and region if applicable.  Azure regions are not currently detected but AWS ones are.
 
 ## Default CSV Output
 
@@ -80,8 +97,6 @@ en
 online
 ```
 
-
-
 # Options
 ```
 $ edge -help
@@ -121,6 +136,18 @@ Usage of edge:
 ```
 
 # Examples
+* **```$ edge -single <ip_address>```**
+
+**Description:**  Perform a prefix lookup of a single IP address supplied with ```<ip_addr>``` against the cloud provider's JSON files.
+
+* **```$ edge -single <ip_address> -silent```**
+
+**Description:**  Same as above, except enable the silent mode.  This suppresses the [INF] messages with extra information.
+
+* **```$ edge -single <ip_address> -silent -nd```**
+
+**Description:**  Don't try to download the provider JSON files, but instead use the local files in working directory.
+
 * **```$ edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>```**
 
 **Description:**  Perform a wordlist subdomain enumeration of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address across all three cloud service provider's published list of IP prefixes.
