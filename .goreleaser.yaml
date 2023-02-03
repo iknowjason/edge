@@ -6,6 +6,7 @@ before:
   hooks:
     - go mod tidy
     - go generate ./...
+
 builds:
   - id: edge 
     binary: edge-{{ .Arch }}
@@ -22,6 +23,7 @@ builds:
       - linux
       - windows
       - darwin
+
 archives:
   - id: foo
     name_template: >-
@@ -30,10 +32,13 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+
 changelog:
   sort: asc
   filters:
