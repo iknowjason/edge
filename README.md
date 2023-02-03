@@ -20,13 +20,11 @@ By default it will attempt to download the three files from the URLs below unles
 
 These three files are already included in this github repository, so downloading them will update any necessary changes.  Once downloaded, you can run the tool with ```-nd``` to avoid superfluous downloads.
 
-If found in working directory, all IP prefixes are loaded into memory.  To update the files, you can use the included tool in this repo compiled from ```http.go``` to download Google and AWS JSON.  Or you can download the latest versions manually.  For the Azure JSON file, it needs to be manually downloaded and renamed in the current working directory to ```azure.json```.
-
-The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag.
+If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
 
-One good idea is to initially run the tool to download all three files, making sure they are up-to-date.  Then subsequent runs with ```-nd``` to improve performance and not download every run.
+One idea is to initially run the tool to download all three files, making sure they are up-to-date.  Then subsequent runs with ```-nd``` to improve performance and not download every run.
 
 ## Default [INF] Mode enabled
 
