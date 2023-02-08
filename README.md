@@ -197,14 +197,32 @@ fleetview.prd.usw2.fn.tesla.com.,,CNAME,a69ff530d53f14d8e8059a3aee44e9ab-1848028
 [INF] Matched IP [52.39.128.70] to Cloud Service [EC2] and Region [us-west-2]
 ```
 ***
+**Example #5:**  Wordlist subdomain enumeration without certificate transparency or IP prefix lookup.
 
-* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt>```**  
+```
+edge -domain <domain> -dns -wordlist <wordlist.txt>
+```
 
 **Description:** Perform just a wordlist scan of all A and CNAME records based on wordlist.
 
-* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix```**  
+**Sample Output:**
+```
+edge -domain tesla.com -dns -wordlist subdomains-5k.txt
+[INF] Found host via CNAME [fleetview.prd.na.fn.tesla.com.:fleetview.prd.usw2.fn.tesla.com]
+fleetview.prd.na.fn.tesla.com.,,CNAME,fleetview.prd.usw2.fn.tesla.com,
+[INF] Found host via A [e9056.b.akamaiedge.net:23.2.254.58]
+e9056.b.akamaiedge.net,23.2.254.58,A,teslamotors.vanity3.ca1.qualtrics.com,
+```
+***
+**Example #6:**  Wordlist subdomain enumeration without certificate transparency or IP prefix lookup.
+
+```
+edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix
+```
 
 **Description:** Perform just a wordlist scan of all A and CNAME records based on wordlist.  For every IP address enumerated, perform a prefix lookup.
+
+***
 
 * **```$ edge -domain <domain> -crt```**  
 
