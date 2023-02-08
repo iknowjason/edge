@@ -139,6 +139,7 @@ edge -single <ip_address>
 ```
 
 **Description:**  Perform a prefix lookup of a single IP address supplied with ```<ip_addr>``` against the cloud provider's JSON files.
+
 **Sample Output:**
 ```
 edge -single 140.179.144.130
