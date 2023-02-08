@@ -133,7 +133,7 @@ Usage of edge:
 ```
 
 # Examples
-***
+
 Look up a single IP address
 ```
 edge -single <ip_address>
