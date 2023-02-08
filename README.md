@@ -133,6 +133,7 @@ Usage of edge:
 ```
 
 # Examples
+***
 Look up a single IP address
 ```
 edge -single <ip_address>
@@ -149,8 +150,11 @@ edge -single 140.179.144.130
 140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
 ```
 
+***
 Look up a single IP address and suppress Info messages
-```$ edge -single <ip_address> -silent```
+```
+$ edge -single <ip_address> -silent
+```
 
 **Description:**  Same as above, except enable the silent mode.  This suppresses the [INF] messages with extra information.
 
