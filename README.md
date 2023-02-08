@@ -214,7 +214,7 @@ fleetview.prd.na.fn.tesla.com.,,CNAME,fleetview.prd.usw2.fn.tesla.com,
 e9056.b.akamaiedge.net,23.2.254.58,A,teslamotors.vanity3.ca1.qualtrics.com,
 ```
 ***
-**Example #6:**  Wordlist subdomain enumeration without certificate transparency or IP prefix lookup.
+**Example #6:**  Wordlist subdomain enumeration without certificate transparency but looking up IP prefix for any IP addresses found.
 
 ```
 edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix
@@ -224,9 +224,23 @@ edge -domain <domain> -dns -wordlist <wordlist.txt> -prefix
 
 ***
 
-* **```$ edge -domain <domain> -crt```**  
+**Example #7:**  Certificate transparency log lookup.
+
+```
+edge -domain <domain> -crt
+``` 
 
 **Description:** Do a Certificate Transparency log lookup using https://crt.sh
+
+**Sample Output:**
+```
+edge -domain tesla.com -crt
+[INF] Running certificate transparency lookup crt.sh
+[INF] Found host via crt.sh [solarbonds.tesla.com]
+solarbonds.tesla.com,,Certificate,,
+[INF] Found host via crt.sh [energydesk.tesla.com]
+energydesk.tesla.com,,Certificate,,
+```
 
 
 * **```$ edge -domain <domain> -dns -crt```**
