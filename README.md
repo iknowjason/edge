@@ -242,47 +242,77 @@ solarbonds.tesla.com,,Certificate,,
 energydesk.tesla.com,,Certificate,,
 ```
 
+***
 
-* **```$ edge -domain <domain> -dns -crt```**
+**Example #8:** Certificate transparency with DNS lookup
+
+```
+edge -domain <domain> -dns -crt
+```
 
 **Description:** Perform a Certificate transparency lookup.  For each host discovered via Cert Transparency, do a full DNS A or CNAME lookup.
 
-* **```$ edge -prefix -ip <ip-hosts.txt>```**
+*** 
+
+**Example #9:** IP prefix lookup with IP address list
+
+```
+edge -prefix -ip <ip-hosts.txt>
+```
 
 **Description:** Perform a lookup of the IP address for the cloud service provider IP prefix.  Takes a list of IP addresses in ip-hosts.txt and looks through it doing a lookup.  One IP address per line.
 
-* **```$ edge -ptr -ip <ip-hosts.txt>```**
+*** 
+
+**Example #10:** DNS PTR lookup with ip address list
+
+```
+edge -ptr -ip <ip-hosts.txt>
+```
 
 **Description:** Does a DNS PTR lookup based on the IP address on each line of ip-hosts.txt.
 
-* **```$ edge -prefix -nmap <results.xml>```**
+
+*** 
+
+**Example #11:** Parses nmap file and does prefix lookup of IP addresses found
+
+```
+edge -prefix -nmap <results.xml>
+```
 
 **Description:** Parses an nmap scan XML file, identifying all "Up" hosts.  For every "Up" host in nmap XML scan results, do an IP prefix lookup for the cloud service provider.
 
+*** 
 
-* **```$ edge -ptr -nmap <results.txt>```**
+**Example #12:** Parses nmap file and does DNS PTR lookup of each IP address found
+
+
+```
+edge -ptr -nmap <results.txt>
+```
 
 **Description:** Parses an nmap scan XML file, and does a PTR lookup of every "Up" host.
 
+*** 
 
-* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -workers 100```**
+**Example #13:** Adds concurrency with 100 workers to boost performance
+
+```
+edge -domain <domain> -dns -wordlist <wordlist.txt> -workers 100
+```
 
 **Description:** Uses a DNS concurrency scan of 100 workers.  This increases the scan speed.  Default workers: 10.
 
-* **```$ edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53```**
+*** 
+
+**Example #14:** Specify a DNS resolver
+
+```
+edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53
+```
 
 **Description:** Specify a DNS resolver of 8.8.4.4 on port 53.  Default is 8.8.8.8.
-
-
-* **```$ edge -crt -domain <domain> -output -csv <output.csv>```**
-
-**Description:** Output results to a CSV file, output.csv.
-
-
-* **```$ edge -crt -domain <domain> -verbose```** 
-
-**Description:** Enable verbose output.
-
 
 # Installing
 
