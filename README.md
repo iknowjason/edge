@@ -134,7 +134,7 @@ Usage of edge:
 
 # Examples
 
-Look up a single IP address
+Example #1:  Look up a single IP address
 ```
 edge -single <ip_address>
 ```
@@ -151,7 +151,7 @@ edge -single 140.179.144.130
 ```
 
 ***
-Look up a single IP address and suppress Info messages
+Example #2:  Look up a single IP address and suppress Info messages
 ```
 $ edge -single <ip_address> -silent
 ```
@@ -164,7 +164,7 @@ edge -single 140.179.144.130
 140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
 ```
 ***
-Use local provider JSON files instead of downloading them.
+Example #3:  Use local provider JSON files instead of downloading them.
 
 ```
 edge -single <ip_address> -silent -nd
@@ -173,7 +173,7 @@ edge -single <ip_address> -silent -nd
 **Description:**  Don't try to download the provider JSON files, but instead use the local files in working directory.
 
 ***
-Wordlist subdomain enumeration with certificate transparancy and prefix lookup.
+Exampple #4:  Wordlist subdomain enumeration with certificate transparancy and prefix lookup.
 
 ```
 edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>
