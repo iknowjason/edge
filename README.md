@@ -163,14 +163,36 @@ $ edge -single <ip_address> -silent
 edge -single 140.179.144.130
 140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
 ```
+***
+Use local provider JSON files instead of downloading them.
 
-* **```$ edge -single <ip_address> -silent -nd```**
+```
+edge -single <ip_address> -silent -nd
+```
 
 **Description:**  Don't try to download the provider JSON files, but instead use the local files in working directory.
 
-* **```$ edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>```**
+***
+Wordlist subdomain enumeration with certificate transparancy and prefix lookup.
+
+```
+edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>
+```
 
 **Description:**  Perform a wordlist subdomain enumeration of all A and CNAME records based on wordlist.txt against domain with certificate transparency lookup.  For each enumerated host found with Cert transparency, also do a DNS lookup.  Do an IP prefix lookup of the IP address across all three cloud service provider's published list of IP prefixes.
+
+**Sample Output:**
+```
+edge -domain tesla.com -dns -crt -prefix -wordlist subdomains-5k.txt
+[INF] Found host via CNAME [fleetview.prd.na.fn.tesla.com.:fleetview.prd.usw2.fn.tesla.com]
+fleetview.prd.na.fn.tesla.com.,,CNAME,fleetview.prd.usw2.fn.tesla.com,
+[INF] Found host via CNAME [fleetview.prd.usw2.fn.tesla.com.:a69ff530d53f14d8e8059a3aee44e9ab-1848028946.us-west-2.elb.amazonaws.com]
+fleetview.prd.usw2.fn.tesla.com.,,CNAME,a69ff530d53f14d8e8059a3aee44e9ab-1848028946.us-west-2.elb.amazonaws.com,
+[INF] Found host via A [a69ff530d53f14d8e8059a3aee44e9ab-1848028946.us-west-2.elb.amazonaws.com:52.39.128.70]
+[INF] Matched Cloud Provider via prefix [AWS:52.36.0.0/14]
+[INF] Matched IP [52.39.128.70] to Cloud Service [EC2] and Region [us-west-2]
+```
+***
 
 * **```$ edge -domain <domain> -dns -wordlist <wordlist.txt>```**  
 
