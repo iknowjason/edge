@@ -133,9 +133,20 @@ Usage of edge:
 ```
 
 # Examples
-* **```$ edge -single <ip_address>```**
+Look up a single IP address
+```
+edge -single <ip_address>
+```
 
 **Description:**  Perform a prefix lookup of a single IP address supplied with ```<ip_addr>``` against the cloud provider's JSON files.
+**Sample Output:**
+```
+edge -single 140.179.144.130
+[INF] Single IP prefix lookup of 140.179.144.130
+[INF] Matched IP [140.179.144.130] to Cloud Provider via prefix [AWS:140.179.144.128/25]
+[INF] Matched IP [140.179.144.130] to Cloud Service [API_GATEWAY] and Region [cn-north-1]
+140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
+```
 
 * **```$ edge -single <ip_address> -silent```**
 
