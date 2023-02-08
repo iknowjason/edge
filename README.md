@@ -184,6 +184,10 @@ edge -domain <domain> -dns -crt -prefix -wordlist <wordlist.txt>
 **Sample Output:**
 ```
 edge -domain tesla.com -dns -crt -prefix -wordlist subdomains-5k.txt
+[INF] Found host via crt.sh [nas-origin.tesla.com]
+nas-origin.tesla.com,,Certificate,,
+[INF] Found host via crt.sh [eua-origin.tesla.com]
+eua-origin.tesla.com,,Certificate,,
 [INF] Found host via CNAME [fleetview.prd.na.fn.tesla.com.:fleetview.prd.usw2.fn.tesla.com]
 fleetview.prd.na.fn.tesla.com.,,CNAME,fleetview.prd.usw2.fn.tesla.com,
 [INF] Found host via CNAME [fleetview.prd.usw2.fn.tesla.com.:a69ff530d53f14d8e8059a3aee44e9ab-1848028946.us-west-2.elb.amazonaws.com]
