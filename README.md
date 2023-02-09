@@ -286,6 +286,11 @@ edge -ptr -ip <ip-hosts.txt>
 
 **Description:** Does a DNS PTR lookup based on the IP address on each line of ip-hosts.txt.
 
+**Sample Output:**
+```
+edge -ptr -ip ip-hosts.txt
+140.179.144.130,ec2-140-179-144-130.cn-north-1.compute.amazonaws.com.cn.
+```
 
 *** 
 
