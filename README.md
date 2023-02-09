@@ -262,6 +262,20 @@ edge -prefix -ip <ip-hosts.txt>
 
 **Description:** Perform a lookup of the IP address for the cloud service provider IP prefix.  Takes a list of IP addresses in ip-hosts.txt and looks through it doing a lookup.  One IP address per line.
 
+**Sample Output:**
+```
+edge -prefix -ip ip-hosts.txt
+[INF] Matched IP [140.179.144.130] to Cloud Provider via prefix [AWS:140.179.144.128/25]
+[INF] Matched IP [140.179.144.130] to Cloud Service [API_GATEWAY] and Region [cn-north-1]
+140.179.144.130,Provider:AWS;Prefix:140.179.144.128/25;Region:cn-north-1;Service:API_GATEWAY
+[INF] Matched IP [18.189.124.22] to Cloud Provider via prefix [AWS:18.189.0.0/16]
+[INF] Matched IP [18.189.124.22] to Cloud Service [EC2] and Region [us-east-2]
+18.189.124.22,Provider:AWS;Prefix:18.189.0.0/16;Region:us-east-2;Service:EC2
+[INF] Matched IP [20.60.128.132] to Cloud Provider via prefix [Azure:20.60.0.0/16]
+[INF] Matched IP [20.60.128.132] to Cloud Service [AzureStorage]
+20.60.128.132,Provider:Azure;Prefix:20.60.0.0/16;Name:Storage;ID:Storage;Platform:Azure;SystemService:AzureStorage
+```
+
 *** 
 
 **Example #10:** DNS PTR lookup with ip address list
