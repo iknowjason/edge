@@ -30,7 +30,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.1.6"
+var edge_version = "0.1.8"
 var (
     flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
     flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
@@ -726,7 +726,7 @@ func main() {
         // Start of Azure IP ranges and service tags download
         // Azure currently has a dynamic URL that changes
         // hardcode the existing and update as necessary, until a better solution is found
-        fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230130.json"
+        fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230213.json"
         fmt.Println("[INF] Starting download of Azure prefixes: ", fileUrlAzure)
         err4 := DownloadFile("azure.json", fileUrlAzure)
 
@@ -1074,7 +1074,9 @@ func main() {
             if err != nil {
                 fmt.Println(err)
             } else {
-	        fmt.Println("[+] Opened nmap file for analysis:", *flNmap)
+                if silentFlag == false {
+	            fmt.Println("[INF] Opened nmap file for analysis:", *flNmap)
+                }
 	    }
 
             defer xmlFile.Close()
@@ -1182,7 +1184,9 @@ func main() {
             if err != nil {
                 fmt.Println(err)
             } else {
-                fmt.Println("[+] Opened nmap file for analysis:", *flNmap)
+                if silentFlag == false {
+                    fmt.Println("[INF] Opened nmap file for analysis:", *flNmap)
+                }
             }
 
             defer xmlFile.Close()
