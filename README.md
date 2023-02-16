@@ -308,7 +308,7 @@ edge -prefix -nmap <results.xml>
 
 
 ```
-edge -ptr -nmap <results.txt>
+edge -ptr -nmap <results.xml>
 ```
 
 **Description:** Parses an nmap scan XML file, and does a PTR lookup of every "Up" host.
