@@ -30,7 +30,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.1.8"
+var edge_version = "0.1.9"
 var (
     flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
     flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
@@ -494,11 +494,11 @@ func (s *Values) azure_lookup(lookup string) (bool, string) {
 
 		description := fmt.Sprintf("Provider:Azure;Prefix:%s;Name:%s;ID:%s;Platform:%s;SystemService:%s",s.Values[z].Properties.Addressprefixes[i],s.Values[z].Name,s.Values[z].Id,s.Values[z].Properties.Platform,s.Values[z].Properties.Systemservice) 
 		if isFlagPassed("verbose") {
-                    fmt.Println("    [+] Found Azure prefix:", s.Values[z].Properties.Addressprefixes[i])
-                    fmt.Println("        [+] Name: ",s.Values[z].Name)
-                    fmt.Println("        [+] ID: ",s.Values[z].Id)
-                    fmt.Println("        [+] Platform: ",s.Values[z].Properties.Platform)
-                    fmt.Println("        [+] SystemService: ",s.Values[z].Properties.Systemservice)
+                    fmt.Println("[VERBOSE] Found Azure prefix:", s.Values[z].Properties.Addressprefixes[i])
+                    fmt.Println("[VERBOSE] Name:",s.Values[z].Name)
+                    fmt.Println("[VERBOSE] ID:",s.Values[z].Id)
+                    fmt.Println("[VERBOSE] Platform:",s.Values[z].Properties.Platform)
+                    fmt.Println("[VERBOSE] SystemService:",s.Values[z].Properties.Systemservice)
 		}
                 return true, description 
             }
@@ -696,14 +696,18 @@ func main() {
         }
     }
 
+    // Print the version of edge
+    if silentFlag == false {
+        version_line := fmt.Sprintf("[INF] Edge version %s ~ Use '-nd' flag to skip downloading cloud provider json files", edge_version)
+        fmt.Println(version_line)
+    }
+
     if ndFlag == true {
         fmt.Println("[INF] No download (-nd)  is true ~ skipping https download of provider prefix files and using local")
     } else {
 
         // Start of AWS - download fresh prefix list
         fileUrlAws := "https://ip-ranges.amazonaws.com/ip-ranges.json"
-        fmt.Println("[INF] Starting download of aws prefixes: ", fileUrlAws)
-        fmt.Println("[INF] Skip download with no download flag (-nd)")
         err2 := DownloadFile("ip-ranges.json", fileUrlAws)
         if err2 != nil {
             fmt.Println("[WRN] Error downloading aws IP ranges - using default")
@@ -714,20 +718,19 @@ func main() {
 
         // Start of Google Cloud download fresh prefix list
         fileUrlG := "https://www.gstatic.com/ipranges/goog.json"
-        fmt.Println("[INF] Starting download of gcloud prefixes: ", fileUrlG)
         err3 := DownloadFile("goog.json", fileUrlG)
         if err3 != nil {
             fmt.Println("[WRN] Error downloading gcloud IP ranges - using default")
             panic(err3)
         } else {
-            fmt.Println("[INF] Downloaded gcloud: ", fileUrlG)
+            fmt.Println("[INF] Downloaded gcloud prefixes: ", fileUrlG)
         }
 
         // Start of Azure IP ranges and service tags download
         // Azure currently has a dynamic URL that changes
-        // hardcode the existing and update as necessary, until a better solution is found
-        fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230213.json"
-        fmt.Println("[INF] Starting download of Azure prefixes: ", fileUrlAzure)
+        // skip download until a better solution is found
+        fmt.Println("[INF] Please manually download azure and name it azure.json ~ Automated download not supported yet")
+        /*fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230213.json"
         err4 := DownloadFile("azure.json", fileUrlAzure)
 
         if err4 != nil {
@@ -735,7 +738,7 @@ func main() {
             panic(err4)
         } else {
             fmt.Println("[INF] Downloaded Azure: ", fileUrlAzure)
-        }
+        }*/
 
     }
 
@@ -744,8 +747,8 @@ func main() {
         fmt.Println(err)
     }
 
-    if silentFlag == false { 
-        fmt.Println("[INF] Opened AWS ip-ranges.json")
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Opened AWS ip-ranges.json")
     }
 
     defer jsonFile.Close()
@@ -763,8 +766,8 @@ func main() {
         aws1++
     }
 
-    if silentFlag == false { 
-        fmt.Println("[INF] Parsed AWS IPv4 prefixes: ",aws1)
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Parsed AWS IPv4 prefixes: ",aws1)
     }
 
     // Iterate through all of the IPv6 prefixes
@@ -774,8 +777,8 @@ func main() {
 	}
         aws2++
     }
-    if silentFlag == false { 
-        fmt.Println("[INF] Parsed AWS IPv6 prefixes: ",aws2)
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Parsed AWS IPv6 prefixes: ",aws2)
     }
     //Finished parsing aws
 
@@ -785,8 +788,8 @@ func main() {
         fmt.Println(err)
     }
 
-    if silentFlag == false { 
-        fmt.Println("[INF] Opened azure.json")
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Opened Azure azure.json")
     }
     defer jsonFileAzure.Close()
 
@@ -803,15 +806,15 @@ func main() {
             azure1++
         }
     }
-    if silentFlag == false { 
-        fmt.Println("[INF] Parsed Azure prefixes: ",azure1)
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Parsed Azure prefixes: ",azure1)
     }
     // End of Azure parsing section
 
     defer jsonFileAzure.Close()
 
-    if silentFlag == false { 
-        fmt.Println("[INF] Opened goog.json")
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Opened goog.json")
     }
     byteValueG, err := ioutil.ReadFile("./goog.json")
     if err != nil {
@@ -832,8 +835,8 @@ func main() {
         }
         gcount1++
     }
-    if silentFlag == false { 
-        fmt.Println("[INF] Parsed GCloud prefixes: ",gcount1)
+    if isFlagPassed("verbose"){
+        fmt.Println("[VERBOSE] Parsed GCloud prefixes: ",gcount1)
     }
     // end of Gcloud
     // End of all three CSP parsing
@@ -1000,7 +1003,7 @@ func main() {
 		var pdesc = ""
 
                 if isFlagPassed("verbose") {
-                    fmt.Println("[+] Looking up",ip_addr)
+                    fmt.Println("[VERBOSE] Looking up",ip_addr)
 	        }
 
 	        if retval1, desc := prefixes.aws_lookup(ip_addr); retval1{
