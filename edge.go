@@ -30,7 +30,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.1.9"
+var edge_version = "0.2.0"
 var (
     flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
     flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
