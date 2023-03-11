@@ -30,7 +30,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.2.0"
+var edge_version = "0.2.1"
 var (
     flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
     flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
@@ -713,7 +713,9 @@ func main() {
             fmt.Println("[WRN] Error downloading aws IP ranges - using default")
             panic(err2)
         } else {
+            if silentFlag == false {
             fmt.Println("[INF] Downloaded aws prefixes: ", fileUrlAws)
+            }
         }
 
         // Start of Google Cloud download fresh prefix list
@@ -723,13 +725,17 @@ func main() {
             fmt.Println("[WRN] Error downloading gcloud IP ranges - using default")
             panic(err3)
         } else {
-            fmt.Println("[INF] Downloaded gcloud prefixes: ", fileUrlG)
+            if silentFlag == false {
+                fmt.Println("[INF] Downloaded gcloud prefixes: ", fileUrlG)
+            }
         }
 
         // Start of Azure IP ranges and service tags download
         // Azure currently has a dynamic URL that changes
         // skip download until a better solution is found
-        fmt.Println("[INF] Please manually download azure and name it azure.json ~ Automated download not supported yet")
+        if silentFlag == false {
+            fmt.Println("[INF] Please manually download azure and name it azure.json ~ Automated download not supported yet")
+        }
         /*fileUrlAzure := "https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20230213.json"
         err4 := DownloadFile("azure.json", fileUrlAzure)
 
