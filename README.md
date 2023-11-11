@@ -32,12 +32,15 @@ When the tool runs for the first time, it automatically tries to download and lo
 
 By default it will attempt to download the six files from the URLs below unless the files are already in the working directory.
 
-* aws.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
-* azure.json (Azure) --> https://azservicetags.azurewebsites.net/
-* goog.json (GCP) --> https://www.gstatic.com/ipranges/goog.json
-* cloudflare-ipv4.txt (Cloudflare IPv4) --> https://www.cloudflare.com/ips-v4/#
-* cloudflare-ipv6.txt (Cloudflare IPv6) --> https://www.cloudflare.com/ips-v6/#
-* digitalocean.csv (Digital Ocean) --> https://digitalocean.com/geo/google.csv
+| Provider        | Local File         | Remote URL  |
+|:-------------:|:-------------:| :-----:|
+| AWS      | aws.json | https://ip-ranges.amazonaws.com/ip-ranges.json |
+| Azure    | azure.json      |  https://azservicetags.azurewebsites.net/  |
+| GCP | goog.json      |  https://www.gstatic.com/ipranges/goog.json |
+| Cloudflare | cloudflare-ipv4.txt | https://www.cloudflare.com/ips-v4/# |
+| Cloudflare | cloudflare-ipv6.txt | https://www.cloudflare.com/ips-v6/# |
+| Digital Ocean | digitalocean.csv | https://digitalocean.com/geo/google.csv |
+
 
 Cloud Edge checks for each file before downloading.  So if the file already exists, it obviously won't be downloaded again unless you delete it.
 
