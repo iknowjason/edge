@@ -1,5 +1,5 @@
 # Cloud edge
- *Lookup an IP to find the cloud provider and other details based on the provider's published JSON data* 
+ *Lookup an IP to find the cloud provider and other details based on the provider's published JSON, CSV, or text data* 
 
 Cloud edge is a recon tool focused on exploring cloud service providers.  It can be used for cloud attribution and forensics, pentesting, bug bounty, red teaming, or general R&D of cloud providers.  Edge automatically loads Cloud Service Provider (CSP) published IP address ranges (AWS, Azure, GCP, Cloudflare, Digital Ocean) files and performs a prefix lookup based on the input IP address.  Can be used to integrate in with other recon tooling.  In a black box network pentest, edge quickly discovers which cloud CSP the customer is hosted with, or just double-verifying the scope for rules of engagement.  Each of these CSPs publish a list of all of their IP prefixes and/or netblocks.  For Azure and AWS, this adds the region/data center and service name.  This can be useful for recon and this tool can quickly parse and do a lookup based on IP prefix.
 
@@ -28,7 +28,7 @@ If you're offline and they can't be downloaded, check the ```csp-files``` direct
 
 ## Files from cloud providers
 
-When the tool runs for the first time, it automatically tries to download and load the three cloud provider IP address ranges JSON, text, and csv files to the working directory.  Here is how it works:
+When the tool runs for the first time, it automatically tries to download and load the six cloud provider IP address ranges JSON, text, and csv files to the working directory.  Here is how it works:
 
 By default it will attempt to download the three files from the URLs below unless the files are already in the working directory.
 
@@ -359,7 +359,7 @@ edge -domain <domain> -dns -wordlist <wordlist.txt> -resolver 8.8.4.4:53
 You can grab the pre-compiled binaries or build it.  Make sure you also get the cloud provider IP prefix JSON files.
 
 ## Building
-Tested with go1.18
+Tested with go1.19
 
 ```
 $ git clone https://github.com/iknowjason/edge.git
