@@ -16,14 +16,6 @@ builds:
       - windows
       - darwin
 
-  - id: http 
-    binary: http-{{ .Arch }}
-    main: ./http.go
-    goos:
-      - linux
-      - windows
-      - darwin
-
 archives:
   - id: archive 
     name_template: >-
