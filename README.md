@@ -9,7 +9,7 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  It can
 # Input and Output
 Here are a few notes on how the tool works for inputs and output.  
 
-## Get Started - First Run Download of CSP Files
+## Getting Started: First Run Download of CSP Files
 
 Run Cloud Edge and it will automatically download all cloud provider files supported.  If the files don't exist in working directory, they will be downloaded:
 
