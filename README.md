@@ -30,7 +30,7 @@ If you're offline and they can't be downloaded, check the ```csp-files``` direct
 
 When the tool runs for the first time, it automatically tries to download and load the six cloud provider IP address ranges JSON, text, and csv files to the working directory.  Here is how it works:
 
-By default it will attempt to download the three files from the URLs below unless the files are already in the working directory.
+By default it will attempt to download the six files from the URLs below unless the files are already in the working directory.
 
 * aws.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
 * azure.json (Azure) --> https://azservicetags.azurewebsites.net/
