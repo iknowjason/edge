@@ -1,3 +1,4 @@
 ./edge
 dist/
 ./http
+.idea/
