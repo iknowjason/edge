@@ -44,9 +44,9 @@ By default it will attempt to download the six files from the URLs below unless 
 
 Cloud Edge checks for each file before downloading.  So if the file already exists, it obviously won't be downloaded again unless you delete it.
 
-These six files are included in this github repository in the ```csp-files``` directory.  Since the Cloud Providers frequently update their lists, ensure you have the latest files by removing the files in your working directory:  aws.json, azure.json, goog.json, cloudflare-ipv4.txt, cloudflare-ipv6.txt, digitalocean.csv.
+These six files are included in this github repository in the ```csp-files``` directory.  Since the Cloud Providers frequently update their lists, ensure you have the latest files by removing the files in your working directory:  ```aws.json, azure.json, goog.json, cloudflare-ipv4.txt, cloudflare-ipv6.txt, digitalocean.csv```.
 
-If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges json files always attempt to load from working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
+If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges files always attempt to load from working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
 
