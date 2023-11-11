@@ -9,22 +9,44 @@ Cloud edge is a recon tool focused on exploring cloud service providers.  It can
 # Input and Output
 Here are a few notes on how the tool works for inputs and output.  
 
-## JSON files from cloud providers
+## Get Started - First Run Download of CSP Files
 
-When the tool runs, it automatically tries to download and load the three cloud provider IP address ranges JSON files to the working directory.  Here is how it works:
+Run Cloud Edge and it will automatically download all cloud provider files supported.  If the files don't exist in working directory, they will be downloaded:
 
-By default it will attempt to download the three files from the URLs below unless you disable the automated download with (-nd) flag.
-* ip-ranges.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
-* azure.json (Azure) --> (URL that periodically needs to be updated)
+```
+% ./edge
+[INF] Starting Cloud Edge version 0.2.2
+[INF] File digitalocean.csv has been downloaded and created
+[INF] File azure.json has been downloaded and created
+[INF] File goog.json has been downloaded and created
+[INF] File aws.json has been downloaded and created
+[INF] File cloudflare-ipv4.txt has been downloaded and created
+[INF] File cloudflare-ipv6.txt has been downloaded and created
+```
+
+If you're offline and they can't be downloaded, check the ```csp-files``` directory in this repository.  Copy them to working directory.
+
+## Files from cloud providers
+
+When the tool runs for the first time, it automatically tries to download and load the three cloud provider IP address ranges JSON, text, and csv files to the working directory.  Here is how it works:
+
+By default it will attempt to download the three files from the URLs below unless the files are already in the working directory.
+
+* aws.json (AWS) --> https://ip-ranges.amazonaws.com/ip-ranges.json
+* azure.json (Azure) --> https://azservicetags.azurewebsites.net/
 * goog.json (GCP) --> https://www.gstatic.com/ipranges/goog.json
+* cloudflare-ipv4.txt (Cloudflare IPv4) --> https://www.cloudflare.com/ips-v4/#
+* cloudflare-ipv6.txt (Cloudflare IPv6) --> https://www.cloudflare.com/ips-v6/#
+* digitalocean.csv (Digital Ocean) --> https://digitalocean.com/geo/google.csv
 
-These three files are already included in this github repository, so downloading them will update any necessary changes.  Once downloaded, you can run the tool with ```-nd``` to avoid superfluous downloads.
+Cloud Edge checks for each file before downloading.  So if the file already exists, it obviously won't be downloaded again unless you delete it.
 
-If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges json files always attempt to load from the working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
+These six files are included in this github repository in the ```csp-files``` directory.  Since the Cloud Providers frequently update their lists, ensure you have the latest files by removing the files in your working directory:  aws.json, azure.json, goog.json, cloudflare-ipv4.txt, cloudflare-ipv6.txt, digitalocean.csv.
+
+If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges json files always attempt to load from working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
 
 When ```-dns``` mode is enabled, DNS lookups for both A and CNAME records are buffered without display until all DNS queries are finished.  After the queries are finished, the output is displayed.
 
-One idea is to initially run the tool to download all three files, making sure they are up-to-date.  Then subsequent runs with ```-nd``` to improve performance and not download every run.
 
 ## Default [INF] Mode enabled
 
@@ -108,8 +130,6 @@ Usage of edge:
     	The domain to perform guessing against.
   -ip string
     	The text file to use with IP addresses
-  -nd
-    	Disable (nd or no download) automated download of provider prefixes
   -nmap string
     	Nmap scan xml file to use.
   -output
