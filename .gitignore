@@ -1,4 +1,8 @@
-./edge
+edge
 dist/
 ./http
 .idea/
+*.json
+*-ipv4.txt
+*-ipv6.txt
+*.csv

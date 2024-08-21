@@ -51,8 +51,8 @@ var (
 	silentFlag    = false
 	azurejson     = "azure.json"
 	azureurl      = "https://azservicetags.azurewebsites.net/"
-	googlejson    = "goog.json"
-	googleurl     = "https://www.gstatic.com/ipranges/goog.json"
+	googlejson    = "cloud.json"
+	googleurl     = "https://www.gstatic.com/ipranges/cloud.json"
 	awsjson       = "aws.json"
 	awsurl        = "https://ip-ranges.amazonaws.com/ip-ranges.json"
 	cfipv4txt     = "cloudflare-ipv4.txt"
@@ -407,7 +407,7 @@ func (s *GPrefixes) gcloud_lookup(lookup string) (bool, string) {
 			_, ipv4Net, _ := net.ParseCIDR(s.GPrefixes[i].Ipv4prefix)
 			mybool := ipv4Net.Contains(IPAddress)
 			if mybool == true {
-				description := fmt.Sprintf("Provider:GCP;Prefix:%s", s.GPrefixes[i].Ipv4prefix)
+				description := fmt.Sprintf("Provider:GCP;Prefix:%s;Region:%s", s.GPrefixes[i].Ipv4prefix, s.GPrefixes[i].Scope)
 				if isFlagPassed("verbose") {
 					fmt.Println("    [+] Found Google Cloud prefix:", s.GPrefixes[i].Ipv4prefix)
 				}
@@ -806,6 +806,7 @@ type GPrefixes struct {
 type GPrefix struct {
 	Ipv4prefix string `json:"ipv4Prefix"`
 	Ipv6prefix string `json:"ipv6Prefix"`
+	Scope      string `json:"scope"`
 }
 
 // End of Gcloud Structures
@@ -1008,7 +1009,7 @@ func main() {
 	defer jsonFileAzure.Close()
 
 	if isFlagPassed("verbose") {
-		fmt.Println("[VERBOSE] Opened goog.json")
+		fmt.Println("[VERBOSE] Opened cloud.json")
 	}
 	byteValueG, err := ioutil.ReadFile(googlejson)
 	if err != nil {
@@ -1074,8 +1075,8 @@ func main() {
 				s := fmt.Sprintf("[INF] Matched IP [%s] to Cloud Provider via prefix [%s:%s]", ip_addr, csp, csp_prefix)
 				fmt.Println(s)
 
-				// Extract the service if AWS or Azure
-				if csp == "AWS" || csp == "Azure" {
+				// Extract the service if AWS or Azure, extract the region if GCP
+				if csp == "AWS" || csp == "Azure" || csp == "GCP" {
 					service_string := ""
 					region_string := ""
 					csp_region := ""
@@ -1088,12 +1089,17 @@ func main() {
 						services := strings.Split(service_string, ":")
 						csp_svc := services[1]
 						s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", ip_addr, csp_svc, csp_region)
-					} else {
+					} else if csp == "Azure" {
 						//Parse azure description for SystemService
 						service_string = desc_elements[5]
 						services := strings.Split(service_string, ":")
 						csp_svc := services[1]
 						s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", ip_addr, csp_svc)
+					} else if csp == "GCP" {
+						region_string = desc_elements[2]
+						regions := strings.Split(region_string, ":")
+						csp_region = regions[1]
+						s = fmt.Sprintf("[INF] Matched IP [%s] to Region [%s]", ip_addr, csp_region)
 					}
 					fmt.Println(s)
 				}
