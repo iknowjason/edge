@@ -15,13 +15,13 @@ Run Cloud Edge and it will automatically download all cloud provider files suppo
 
 ```
 % ./edge
-[INF] Starting Cloud Edge version 0.2.2
-[INF] File digitalocean.csv has been downloaded and created
-[INF] File azure.json has been downloaded and created
-[INF] File goog.json has been downloaded and created
+[INF] Starting Cloud Edge version 0.2.3
+[INF] File cloud.json has been downloaded and created
 [INF] File aws.json has been downloaded and created
 [INF] File cloudflare-ipv4.txt has been downloaded and created
 [INF] File cloudflare-ipv6.txt has been downloaded and created
+[INF] File digitalocean.csv has been downloaded and created
+[INF] File azure.json has been downloaded and created
 ```
 
 If you're offline and they can't be downloaded, check the ```csp-files``` directory in this repository.  Copy them to working directory.
@@ -36,7 +36,7 @@ By default it will attempt to download the six files from the URLs below unless 
 |:-------------:|:-------------:| :-----:|
 | AWS      | aws.json | https://ip-ranges.amazonaws.com/ip-ranges.json |
 | Azure    | azure.json      |  https://azservicetags.azurewebsites.net/  |
-| GCP | goog.json      |  https://www.gstatic.com/ipranges/goog.json |
+| GCP | cloud.json      |  https://www.gstatic.com/ipranges/cloud.json |
 | Cloudflare | cloudflare-ipv4.txt | https://www.cloudflare.com/ips-v4/# |
 | Cloudflare | cloudflare-ipv6.txt | https://www.cloudflare.com/ips-v6/# |
 | Digital Ocean | digitalocean.csv | https://digitalocean.com/geo/google.csv |
@@ -44,7 +44,7 @@ By default it will attempt to download the six files from the URLs below unless 
 
 Cloud Edge checks for each file before downloading.  So if the file already exists, it obviously won't be downloaded again unless you delete it.
 
-These six files are included in this github repository in the ```csp-files``` directory.  Since the Cloud Providers frequently update their lists, ensure you have the latest files by removing the files in your working directory:  ```aws.json, azure.json, goog.json, cloudflare-ipv4.txt, cloudflare-ipv6.txt, digitalocean.csv```.
+These six files are included in this github repository in the ```csp-files``` directory.  Since the Cloud Providers frequently update their lists, ensure you have the latest files by removing the files in your working directory:  ```aws.json, azure.json, cloud.json, cloudflare-ipv4.txt, cloudflare-ipv6.txt, digitalocean.csv```.
 
 If found in working directory, all IP prefixes are loaded into memory.  The cloud provider IP ranges files always attempt to load from working directory.  Enabling the actual lookup is done with  the ```-prefix``` flag. 
 

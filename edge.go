@@ -32,7 +32,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.2.2"
+var edge_version = "0.2.3"
 var (
 	flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
 	flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
@@ -317,8 +317,8 @@ func crt_transparency(domain_string string, serverAddr string) []result {
 								s := fmt.Sprintf("[INF] Matched Cloud Provider via prefix [%s:%s]", csp, csp_prefix)
 								fmt.Println(s)
 
-								// Extract the service if AWS or Azure
-								if csp == "AWS" || csp == "Azure" {
+								// Extract the service if AWS or Azure, extract the region if GCP
+								if csp == "AWS" || csp == "Azure" || csp == "GCP" {
 									service_string := ""
 									region_string := ""
 									csp_region := ""
@@ -331,12 +331,17 @@ func crt_transparency(domain_string string, serverAddr string) []result {
 										services := strings.Split(service_string, ":")
 										csp_svc := services[1]
 										s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", r.IPAddress, csp_svc, csp_region)
-									} else {
+									} else if csp == "Azure" {
 										//Parse azure description for SystemService
 										service_string = desc_elements[5]
 										services := strings.Split(service_string, ":")
 										csp_svc := services[1]
 										s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", r.IPAddress, csp_svc)
+									} else if csp == "GCP" {
+										region_string = desc_elements[2]
+										regions := strings.Split(region_string, ":")
+										csp_region = regions[1]
+										s = fmt.Sprintf("[INF] Matched IP [%s] to Region [%s]", r.IPAddress, csp_region)
 									}
 									fmt.Println(s)
 
@@ -1241,8 +1246,8 @@ func main() {
 						s := fmt.Sprintf("[INF] Matched IP [%s] to Cloud Provider via prefix [%s:%s]", ip_addr, csp, csp_prefix)
 						fmt.Println(s)
 
-						// Extract the service if AWS or Azure
-						if csp == "AWS" || csp == "Azure" {
+						// Extract the service if AWS or Azure, extract the region if GCP
+						if csp == "AWS" || csp == "Azure" || csp == "GCP" {
 							service_string := ""
 							region_string := ""
 							csp_region := ""
@@ -1255,12 +1260,17 @@ func main() {
 								services := strings.Split(service_string, ":")
 								csp_svc := services[1]
 								s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s] and Region [%s]", ip_addr, csp_svc, csp_region)
-							} else {
+							} else if csp == "Azure" {
 								//Parse azure description for SystemService
 								service_string = desc_elements[5]
 								services := strings.Split(service_string, ":")
 								csp_svc := services[1]
 								s = fmt.Sprintf("[INF] Matched IP [%s] to Cloud Service [%s]", ip_addr, csp_svc)
+							} else if csp == "GCP" {
+								region_string = desc_elements[2]
+								regions := strings.Split(region_string, ":")
+								csp_region = regions[1]
+								s = fmt.Sprintf("[INF] Matched IP [%s] to Region [%s]", ip_addr, csp_region)
 							}
 							fmt.Println(s)
 						}
