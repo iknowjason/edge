@@ -15,7 +15,7 @@ Run Cloud Edge and it will automatically download all cloud provider files suppo
 
 ```
 % ./edge
-[INF] Starting Cloud Edge version 0.2.3
+[INF] Starting Cloud Edge version 0.2.4
 [INF] File cloud.json has been downloaded and created
 [INF] File aws.json has been downloaded and created
 [INF] File cloudflare-ipv4.txt has been downloaded and created
