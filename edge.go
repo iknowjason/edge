@@ -32,7 +32,7 @@ var csvfile *os.File
 var error_timeout = 0
 var dns_lookups = 0
 var records_found = 0
-var edge_version = "0.2.4"
+var edge_version = "0.2.5"
 var (
 	flDomain      = flag.String("domain", "", "The domain to perform guessing against.")
 	flWordlist    = flag.String("wordlist", "", "The wordlist to use for guessing.")
@@ -931,14 +931,12 @@ func main() {
 	var err error
 	cfprefixes, err = loadCFPrefixes(cfipv4txt)
 	if err != nil {
-		fmt.Println("[ERR] Error reading file:", err)
-		return
+		fmt.Println("[ERR] Error reading Cloudflare ipv4 text file:", err)
 	}
 
 	doprefixes, err = loadDOPrefixes(docsv)
 	if err != nil {
-		fmt.Println("[ERR] Error reading file:", err)
-		return
+		fmt.Println("[ERR] Error reading Digitalocean csv file:", err)
 	}
 
 	// Load aws.json data
